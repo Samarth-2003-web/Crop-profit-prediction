@@ -1,0 +1,131 @@
+# Python# Python# Python
+
+__pycache__/
+
+*.py[cod]__pycache__/__pycache__/
+
+*$py.class
+
+*.so*.py[cod]*.py[cod]
+
+.Python
+
+env/*$py.class*$py.class
+
+venv/
+
+ENV/*.so*.so
+
+build/
+
+develop-eggs/.Python.Python
+
+dist/
+
+downloads/env/env/
+
+eggs/
+
+.eggs/venv/venv/
+
+lib/
+
+lib64/ENV/ENV/
+
+parts/
+
+sdist/build/.venv
+
+var/
+
+wheels/develop-eggs/
+
+*.egg-info/
+
+.installed.cfgdist/# Jupyter Notebook
+
+*.egg
+
+downloads/.ipynb_checkpoints
+
+# Flask
+
+instance/eggs/
+
+.webassets-cache
+
+.eggs/# IDEs
+
+# IDEs
+
+.vscode/lib/.vscode/
+
+.idea/
+
+*.swplib64/.idea/
+
+*.swo
+
+*~parts/*.swp
+
+
+
+# OSsdist/*.swo
+
+.DS_Store
+
+Thumbs.dbvar/*~
+
+
+
+# Environment variableswheels/
+
+.env
+
+*.egg-info/# OS
+
+.installed.cfg.DS_Store
+
+*.eggThumbs.db
+
+
+
+# Streamlit# Streamlit
+
+.streamlit/.streamlit/secrets.toml
+
+
+
+# IDEs# Data files (if large)
+
+.vscode/# *.csv
+
+.idea/# *.xlsx
+
+*.swp
+
+*.swo# Models
+
+*~*.pkl
+
+*.joblib
+
+# OS*.h5
+
+.DS_Store
+
+Thumbs.db# Logs
+
+*.log
+
+# Jupyter Notebooklogs/
+
+.ipynb_checkpoints
+
+# Distribution
+
+# Environmentdist/
+
+.envbuild/
+
+*.egg-info/
