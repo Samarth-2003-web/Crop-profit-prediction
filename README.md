@@ -6,7 +6,7 @@ A machine learning-powered web application that helps farmers predict crop yield
 
 
 
-## Features## 📊 Features
+## 📊 Features
 
 
 
