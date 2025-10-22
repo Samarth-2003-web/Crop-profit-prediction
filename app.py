@@ -239,14 +239,16 @@ def predict_profit(season, crop_type, district, year, area, prev_production, pre
     }])
     
     # Predict
-    yield_per_ha = yield_model.predict(yield_features)[0]
-    price_per_t = price_model.predict(price_features)[0]
+    yield_tonnes_per_ha = yield_model.predict(yield_features)[0]
+    price_per_tonne = price_model.predict(price_features)[0]
     
     # Convert to user units and calculate profit
     # Model predicts in tonnes/hectare, convert to quintals/acre
-    # 1 tonne/hectare = 10 quintals/hectare = 4.04686 quintals/acre
-    yield_per_acre = yield_per_ha * 10 * 0.404686  # tonnes/ha → quintals/ha → quintals/acre
-    price_per_quintal = price_per_t / 10
+    # 1 tonne = 10 quintals
+    # 1 hectare = 2.47105 acres
+    # Therefore: tonnes/hectare × (10 quintals/tonne) ÷ (2.47105 acres/hectare) = quintals/acre
+    yield_per_acre = yield_tonnes_per_ha * 4.047  # tonnes/ha → quintals/acre
+    price_per_quintal = price_per_tonne / 10  # ₹/tonne → ₹/quintal
     
     total_yield = yield_per_acre * area
     revenue = total_yield * price_per_quintal
