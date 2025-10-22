@@ -1,131 +1,45 @@
-# Python# Python# Python
-
+﻿# Python
 __pycache__/
-
-*.py[cod]__pycache__/__pycache__/
-
+*.py[cod]
 *$py.class
-
-*.so*.py[cod]*.py[cod]
-
+*.so
 .Python
-
-env/*$py.class*$py.class
-
+env/
 venv/
-
-ENV/*.so*.so
-
+ENV/
 build/
-
-develop-eggs/.Python.Python
-
+develop-eggs/
 dist/
-
-downloads/env/env/
-
+downloads/
 eggs/
-
-.eggs/venv/venv/
-
+.eggs/
 lib/
-
-lib64/ENV/ENV/
-
+lib64/
 parts/
-
-sdist/build/.venv
-
+sdist/
 var/
-
-wheels/develop-eggs/
-
+wheels/
 *.egg-info/
-
-.installed.cfgdist/# Jupyter Notebook
-
+.installed.cfg
 *.egg
 
-downloads/.ipynb_checkpoints
-
 # Flask
-
-instance/eggs/
-
+instance/
 .webassets-cache
 
-.eggs/# IDEs
-
 # IDEs
-
-.vscode/lib/.vscode/
-
+.vscode/
 .idea/
-
-*.swplib64/.idea/
-
+*.swp
 *.swo
+*~
 
-*~parts/*.swp
-
-
-
-# OSsdist/*.swo
-
+# OS
 .DS_Store
+Thumbs.db
 
-Thumbs.dbvar/*~
-
-
-
-# Environment variableswheels/
-
+# Environment variables
 .env
 
-*.egg-info/# OS
-
-.installed.cfg.DS_Store
-
-*.eggThumbs.db
-
-
-
-# Streamlit# Streamlit
-
-.streamlit/.streamlit/secrets.toml
-
-
-
-# IDEs# Data files (if large)
-
-.vscode/# *.csv
-
-.idea/# *.xlsx
-
-*.swp
-
-*.swo# Models
-
-*~*.pkl
-
-*.joblib
-
-# OS*.h5
-
-.DS_Store
-
-Thumbs.db# Logs
-
+# Local development
 *.log
-
-# Jupyter Notebooklogs/
-
-.ipynb_checkpoints
-
-# Distribution
-
-# Environmentdist/
-
-.envbuild/
-
-*.egg-info/
