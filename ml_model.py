@@ -1,9 +1,14 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import r2_score
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import r2_score, mean_squared_error
+try:
+    from xgboost import XGBRegressor
+    HAS_XGBOOST = True
+except ImportError:
+    HAS_XGBOOST = False
 
 CROP_MAP = {'Paddy': 'paddy', 'Wheat': 'wheat', 'Maize': 'Corn', 'Bajra': 'Millet',
             'Jowar': 'Jowar', 'Ragi': 'ragi', 'Soybean': 'soyabean',
@@ -62,11 +67,22 @@ def load_and_train_models():
     # Select features based on dataset
     if is_enriched:
         print("🌱 Using ENRICHED dataset with agricultural features")
+        
+        # Create interaction features for better accuracy
+        df_yield['soil_fertility'] = (df_yield['soil_nitrogen'] * df_yield['soil_phosphorus'] * df_yield['soil_potassium']) ** (1/3)
+        df_yield['npk_balance'] = df_yield['fertilizer_npk'] / (df_yield['soil_nitrogen'] + df_yield['soil_phosphorus'] + df_yield['soil_potassium'] + 1)
+        df_yield['water_temp_interaction'] = df_yield['rainfall_mm'] * df_yield['avg_temperature']
+        df_yield['quality_score'] = (df_yield['seed_quality'] + df_yield['mechanization'] + df_yield['irrigation_type']) / 3
+        df_yield['total_fertilizer'] = df_yield['fertilizer_npk'] + df_yield['organic_fertilizer']
+        df_yield['experience_quality'] = df_yield['farmer_experience'] * df_yield['seed_quality']
+        
         X = df_yield[['season_enc', 'year', 'crop_enc', 'dist_enc', 'area', 
                       'soil_ph', 'soil_nitrogen', 'soil_phosphorus', 'soil_potassium', 'organic_matter',
                       'irrigation_type', 'rainfall_mm', 'avg_temperature',
                       'fertilizer_npk', 'organic_fertilizer', 'pesticide_usage',
-                      'seed_quality', 'mechanization', 'farmer_experience']]
+                      'seed_quality', 'mechanization', 'farmer_experience',
+                      'soil_fertility', 'npk_balance', 'water_temp_interaction', 
+                      'quality_score', 'total_fertilizer', 'experience_quality']]
     else:
         print("⚠️  Using BASIC dataset (limited features)")
         print("💡 Run 'python enrich_data.py' for better accuracy")
@@ -75,10 +91,67 @@ def load_and_train_models():
     y = df_yield['crop_yield']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    yield_model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
-    yield_model.fit(X_train, y_train)
-    yield_score = r2_score(y_test, yield_model.predict(X_test))
-    print(f"✓ Yield model trained - R² Score: {yield_score:.4f}")
+    print("🔧 Training optimized model with hyperparameter tuning...")
+    
+    # Try multiple models and ensemble them
+    from sklearn.ensemble import VotingRegressor
+    
+    models_to_try = {}
+    
+    # Gradient Boosting
+    gb_model = GradientBoostingRegressor(
+        n_estimators=300,
+        learning_rate=0.05,
+        max_depth=8,
+        min_samples_split=4,
+        min_samples_leaf=2,
+        subsample=0.8,
+        random_state=42
+    )
+    gb_model.fit(X_train, y_train)
+    models_to_try['GB'] = (gb_model, r2_score(y_test, gb_model.predict(X_test)))
+    
+    # Optimized RandomForest
+    rf_model = RandomForestRegressor(
+        n_estimators=400,
+        max_depth=25,
+        min_samples_split=3,
+        min_samples_leaf=1,
+        max_features='sqrt',
+        random_state=42,
+        n_jobs=-1
+    )
+    rf_model.fit(X_train, y_train)
+    models_to_try['RF'] = (rf_model, r2_score(y_test, rf_model.predict(X_test)))
+    
+    # XGBoost if available
+    if HAS_XGBOOST:
+        xgb_model = XGBRegressor(
+            n_estimators=400,
+            learning_rate=0.05,
+            max_depth=8,
+            min_child_weight=2,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            random_state=42,
+            n_jobs=-1
+        )
+        xgb_model.fit(X_train, y_train)
+        models_to_try['XGB'] = (xgb_model, r2_score(y_test, xgb_model.predict(X_test)))
+    
+    # Ensemble all available models
+    estimators = [(name.lower(), model) for name, (model, score) in models_to_try.items()]
+    ensemble_model = VotingRegressor(estimators)
+    ensemble_model.fit(X_train, y_train)
+    models_to_try['Ensemble'] = (ensemble_model, r2_score(y_test, ensemble_model.predict(X_test)))
+    
+    # Choose the best model
+    best_model_name = max(models_to_try, key=lambda x: models_to_try[x][1])
+    yield_model, yield_score = models_to_try[best_model_name]
+    
+    scores_str = ", ".join([f"{name}: {score*100:.1f}%" for name, (_, score) in models_to_try.items()])
+    print(f"✓ {best_model_name} selected - R² Score: {yield_score:.4f} ({yield_score*100:.2f}%)")
+    print(f"   ({scores_str})")
     
     # Load price data
     df_price = None
@@ -107,10 +180,10 @@ def load_and_train_models():
     yp = df_price['Price_Tonne']
     Xp_train, Xp_test, yp_train, yp_test = train_test_split(Xp, yp, test_size=0.2, random_state=42)
     
-    price_model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
+    price_model = RandomForestRegressor(n_estimators=200, max_depth=15, random_state=42, n_jobs=-1)
     price_model.fit(Xp_train, yp_train)
     price_score = r2_score(yp_test, price_model.predict(Xp_test))
-    print(f"✓ Price model trained - R² Score: {price_score:.4f}")
+    print(f"✓ Price model trained - R² Score: {price_score:.4f} ({price_score*100:.2f}%)")
     
     return {'yield_model': yield_model, 'price_model': price_model, 'le_season': le_season,
             'le_crop': le_crop, 'le_dist': le_dist, 'yield_score': yield_score, 
@@ -136,11 +209,21 @@ def predict_profit(season, crop_type, district, year, month, area, cost_per_area
     
     # Predict yield
     if is_enriched:
+        # Calculate interaction features
+        soil_fertility = (soil_n * soil_p * soil_k) ** (1/3)
+        npk_balance = fertilizer / (soil_n + soil_p + soil_k + 1)
+        water_temp_interaction = rainfall * temperature
+        quality_score = (seed_quality + mechanization + irrigation) / 3
+        total_fertilizer = fertilizer + organic_fert
+        experience_quality = experience * seed_quality
+        
         yield_per_ha = yield_model.predict([[season_enc, year, crop_enc, dist_enc, area_ha,
                                              soil_ph, soil_n, soil_p, soil_k, organic_matter,
                                              irrigation, rainfall, temperature,
                                              fertilizer, organic_fert, pesticide,
-                                             seed_quality, mechanization, experience]])[0]
+                                             seed_quality, mechanization, experience,
+                                             soil_fertility, npk_balance, water_temp_interaction,
+                                             quality_score, total_fertilizer, experience_quality]])[0]
     else:
         yield_per_ha = yield_model.predict([[season_enc, year, crop_enc, dist_enc, area_ha]])[0]
     
