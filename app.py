@@ -46,12 +46,21 @@ def predict_profit(season, crop_type, district, year, area, prev_production_quin
     mechanization = 1
     farmer_experience = 10
 
-    # Predict yield with all 19 features
+    # Calculate interaction features (same as in ml_model.py)
+    soil_fertility = (soil_nitrogen * soil_phosphorus * soil_potassium) ** (1/3)
+    npk_balance = fertilizer_npk / (soil_nitrogen + soil_phosphorus + soil_potassium + 1)
+    water_temp_interaction = rainfall_mm * avg_temperature
+    quality_score = (seed_quality + mechanization + irrigation_type) / 3
+    total_fertilizer = fertilizer_npk + organic_fertilizer
+    experience_quality = farmer_experience * seed_quality
+
+    # Predict yield with all 25 features
     yield_per_ha = yield_model.predict([[
         season_enc, year, crop_enc, dist_enc, area_ha,
         soil_ph, soil_nitrogen, soil_phosphorus, soil_potassium, organic_matter,
         irrigation_type, rainfall_mm, avg_temperature, fertilizer_npk, organic_fertilizer,
-        pesticide_usage, seed_quality, mechanization, farmer_experience
+        pesticide_usage, seed_quality, mechanization, farmer_experience,
+        soil_fertility, npk_balance, water_temp_interaction, quality_score, total_fertilizer, experience_quality
     ]])[0] 
     price_per_t = price_model.predict([[crop_enc, year, month]])[0]
     
