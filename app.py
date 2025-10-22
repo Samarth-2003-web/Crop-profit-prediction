@@ -55,40 +55,40 @@ def predict_profit(season, crop_type, district, year, area, prev_production_quin
     total_fertilizer = fertilizer_npk + organic_fertilizer
     experience_quality = farmer_experience * seed_quality
 
-    # Create DataFrame with proper feature names for yield prediction
+    # Create DataFrame with proper feature names for yield prediction (matching training data)
     yield_features = pd.DataFrame([{
-        'Season': season_enc,
-        'Year': year,
-        'Crop': crop_enc,
-        'District': dist_enc,
-        'Area': area_ha,
-        'Soil_pH': soil_ph,
-        'Soil_Nitrogen': soil_nitrogen,
-        'Soil_Phosphorus': soil_phosphorus,
-        'Soil_Potassium': soil_potassium,
-        'Organic_Matter': organic_matter,
-        'Irrigation_Type': irrigation_type,
-        'Rainfall_mm': rainfall_mm,
-        'Avg_Temperature': avg_temperature,
-        'Fertilizer_NPK': fertilizer_npk,
-        'Organic_Fertilizer': organic_fertilizer,
-        'Pesticide_Usage': pesticide_usage,
-        'Seed_Quality': seed_quality,
-        'Mechanization': mechanization,
-        'Farmer_Experience': farmer_experience,
-        'Soil_Fertility': soil_fertility,
-        'NPK_Balance': npk_balance,
-        'Water_Temp_Interaction': water_temp_interaction,
-        'Quality_Score': quality_score,
-        'Total_Fertilizer': total_fertilizer,
-        'Experience_Quality': experience_quality
+        'season_enc': season_enc,
+        'year': year,
+        'crop_enc': crop_enc,
+        'dist_enc': dist_enc,
+        'area': area_ha,
+        'soil_ph': soil_ph,
+        'soil_nitrogen': soil_nitrogen,
+        'soil_phosphorus': soil_phosphorus,
+        'soil_potassium': soil_potassium,
+        'organic_matter': organic_matter,
+        'irrigation_type': irrigation_type,
+        'rainfall_mm': rainfall_mm,
+        'avg_temperature': avg_temperature,
+        'fertilizer_npk': fertilizer_npk,
+        'organic_fertilizer': organic_fertilizer,
+        'pesticide_usage': pesticide_usage,
+        'seed_quality': seed_quality,
+        'mechanization': mechanization,
+        'farmer_experience': farmer_experience,
+        'soil_fertility': soil_fertility,
+        'npk_balance': npk_balance,
+        'water_temp_interaction': water_temp_interaction,
+        'quality_score': quality_score,
+        'total_fertilizer': total_fertilizer,
+        'experience_quality': experience_quality
     }])
     
-    # Create DataFrame with proper feature names for price prediction
+    # Create DataFrame with proper feature names for price prediction (matching training data)
     price_features = pd.DataFrame([{
-        'Crop': crop_enc,
-        'Year': year,
-        'Month': month
+        'crop_enc': crop_enc,
+        'year': year,
+        'month': month
     }])
     
     # Predict yield and price
