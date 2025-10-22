@@ -70,19 +70,12 @@ def load_and_train_models():
         
         # Create interaction features for better accuracy
         df_yield['soil_fertility'] = (df_yield['soil_nitrogen'] * df_yield['soil_phosphorus'] * df_yield['soil_potassium']) ** (1/3)
-        df_yield['npk_balance'] = df_yield['fertilizer_npk'] / (df_yield['soil_nitrogen'] + df_yield['soil_phosphorus'] + df_yield['soil_potassium'] + 1)
         df_yield['water_temp_interaction'] = df_yield['rainfall_mm'] * df_yield['avg_temperature']
-        df_yield['quality_score'] = (df_yield['seed_quality'] + df_yield['mechanization'] + df_yield['irrigation_type']) / 3
-        df_yield['total_fertilizer'] = df_yield['fertilizer_npk'] + df_yield['organic_fertilizer']
-        df_yield['experience_quality'] = df_yield['farmer_experience'] * df_yield['seed_quality']
         
         X = df_yield[['season_enc', 'year', 'crop_enc', 'dist_enc', 'area', 
                       'soil_ph', 'soil_nitrogen', 'soil_phosphorus', 'soil_potassium', 'organic_matter',
                       'irrigation_type', 'rainfall_mm', 'avg_temperature',
-                      'fertilizer_npk', 'organic_fertilizer', 'pesticide_usage',
-                      'seed_quality', 'mechanization', 'farmer_experience',
-                      'soil_fertility', 'npk_balance', 'water_temp_interaction', 
-                      'quality_score', 'total_fertilizer', 'experience_quality']]
+                      'soil_fertility', 'water_temp_interaction']]
     else:
         print("⚠️  Using BASIC dataset (limited features)")
         print("💡 Run 'python enrich_data.py' for better accuracy")
@@ -191,10 +184,9 @@ def load_and_train_models():
 
 def predict_profit(season, crop_type, district, year, month, area, cost_per_area, models_data, 
                    soil_ph=6.5, soil_n=250, soil_p=25, soil_k=200, organic_matter=2.0,
-                   irrigation=1, rainfall=600, temperature=25, fertilizer=150, 
-                   organic_fert=50, pesticide=2, seed_quality=1, mechanization=1, experience=15):
+                   irrigation=1, rainfall=600, temperature=25):
     """
-    Predict profit with optional agricultural features
+    Predict profit with agricultural features
     Uses enriched model if available, otherwise basic model
     """
     yield_model, price_model = models_data['yield_model'], models_data['price_model']
@@ -211,19 +203,12 @@ def predict_profit(season, crop_type, district, year, month, area, cost_per_area
     if is_enriched:
         # Calculate interaction features
         soil_fertility = (soil_n * soil_p * soil_k) ** (1/3)
-        npk_balance = fertilizer / (soil_n + soil_p + soil_k + 1)
         water_temp_interaction = rainfall * temperature
-        quality_score = (seed_quality + mechanization + irrigation) / 3
-        total_fertilizer = fertilizer + organic_fert
-        experience_quality = experience * seed_quality
         
         yield_per_ha = yield_model.predict([[season_enc, year, crop_enc, dist_enc, area_ha,
                                              soil_ph, soil_n, soil_p, soil_k, organic_matter,
                                              irrigation, rainfall, temperature,
-                                             fertilizer, organic_fert, pesticide,
-                                             seed_quality, mechanization, experience,
-                                             soil_fertility, npk_balance, water_temp_interaction,
-                                             quality_score, total_fertilizer, experience_quality]])[0]
+                                             soil_fertility, water_temp_interaction]])[0]
     else:
         yield_per_ha = yield_model.predict([[season_enc, year, crop_enc, dist_enc, area_ha]])[0]
     
@@ -254,8 +239,7 @@ def main():
         # Example prediction
         result = predict_profit('Kharif', 'paddy', 'Ballari', 2024, 10, 250.0, 8000, models_data,
                                soil_ph=6.8, soil_n=280, soil_p=30, soil_k=220, organic_matter=2.5,
-                               irrigation=2, rainfall=800, temperature=28, fertilizer=180,
-                               organic_fert=60, pesticide=2, seed_quality=1, mechanization=1, experience=20)
+                               irrigation=2, rainfall=800, temperature=28)
         
         print(f"\n{'Example Prediction:':-^70}")
         print(f"📊 Yield: {result['predicted_yield_per_acre']:.2f} quintals/acre")

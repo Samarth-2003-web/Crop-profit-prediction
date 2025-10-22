@@ -40,20 +40,10 @@ def predict_profit(season, crop_type, district, year, area, prev_production_quin
     irrigation_type = 1
     rainfall_mm = 800.0
     avg_temperature = 25.0
-    fertilizer_npk = 150.0
-    organic_fertilizer = 50.0
-    pesticide_usage = 1
-    seed_quality = 1
-    mechanization = 1
-    farmer_experience = 10
 
     # Calculate interaction features (same as in ml_model.py)
     soil_fertility = (soil_nitrogen * soil_phosphorus * soil_potassium) ** (1/3)
-    npk_balance = fertilizer_npk / (soil_nitrogen + soil_phosphorus + soil_potassium + 1)
     water_temp_interaction = rainfall_mm * avg_temperature
-    quality_score = (seed_quality + mechanization + irrigation_type) / 3
-    total_fertilizer = fertilizer_npk + organic_fertilizer
-    experience_quality = farmer_experience * seed_quality
 
     # Create DataFrame with proper feature names for yield prediction (matching training data)
     yield_features = pd.DataFrame([{
@@ -70,18 +60,8 @@ def predict_profit(season, crop_type, district, year, area, prev_production_quin
         'irrigation_type': irrigation_type,
         'rainfall_mm': rainfall_mm,
         'avg_temperature': avg_temperature,
-        'fertilizer_npk': fertilizer_npk,
-        'organic_fertilizer': organic_fertilizer,
-        'pesticide_usage': pesticide_usage,
-        'seed_quality': seed_quality,
-        'mechanization': mechanization,
-        'farmer_experience': farmer_experience,
         'soil_fertility': soil_fertility,
-        'npk_balance': npk_balance,
-        'water_temp_interaction': water_temp_interaction,
-        'quality_score': quality_score,
-        'total_fertilizer': total_fertilizer,
-        'experience_quality': experience_quality
+        'water_temp_interaction': water_temp_interaction
     }])
     
     # Create DataFrame with proper feature names for price prediction (matching training data)
