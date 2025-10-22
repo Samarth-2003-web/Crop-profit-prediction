@@ -73,10 +73,17 @@ def predict_profit(season, crop_type, district, year, area, prev_production_quin
     cost = cost_per_area * area
     profit = revenue - cost
     
-    return {'predicted_yield_per_acre': yield_per_acre, 'predicted_price_per_quintal': price_per_quintal,
-            'total_yield_quintals': total_yield, 'total_revenue': revenue, 'total_cost': cost,
-            'profit': profit, 'roi': (profit / cost) * 100 if cost > 0 else 0,
-            'profit_per_acre': profit / area}
+    # Convert NumPy types to Python native types for JSON serialization
+    return {
+        'predicted_yield_per_acre': float(yield_per_acre),
+        'predicted_price_per_quintal': float(price_per_quintal),
+        'total_yield_quintals': float(total_yield),
+        'total_revenue': float(revenue),
+        'total_cost': float(cost),
+        'profit': float(profit),
+        'roi': float((profit / cost) * 100 if cost > 0 else 0),
+        'profit_per_acre': float(profit / area)
+    }
 # --- End of Helper Function ---
 
 
