@@ -4,10 +4,6 @@
 echo "Installing dependencies..."
 pip install -r requirements.txt
 
-echo "Training ML models..."
-python train.py
-
-echo "Verifying model files..."
-ls -la *.joblib
+echo "Models will be trained automatically on first app startup if not present"
 
 echo "Build completed successfully!"
