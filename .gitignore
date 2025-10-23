@@ -23,6 +23,10 @@ wheels/
 .installed.cfg
 *.egg
 
+# ML Models (generated during build)
+*.joblib
+form_options.json
+
 # Flask
 instance/
 .webassets-cache
