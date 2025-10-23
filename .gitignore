@@ -27,6 +27,9 @@ wheels/
 *.joblib
 form_options.json
 
+# Notebooks
+*.ipynb
+
 # Flask
 instance/
 .webassets-cache
